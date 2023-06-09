@@ -1,6 +1,9 @@
+using DependencyInjectionSample;
+using DependencyInjectionSample.Interfaces;
+using DependencyInjectionSample.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using RazorPagesMovie.Data;
+using RazorPagesMovie.Middlewares;
 using RazorPagesMovie.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +13,12 @@ builder.Services.AddRazorPages();
 builder.Services.AddDbContext<RazorPagesMovieContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("RazorPagesMovieContext") 
                       ?? throw new InvalidOperationException("Connection string 'RazorPagesMovieContext' not found.")));
+
+builder.Services.AddMyDependency();
+
+builder.Services.AddScoped<IOperationScoped, Operation>();
+builder.Services.AddTransient<IOperationTransient, Operation>();
+builder.Services.AddSingleton<IOperationSingleton, Operation>();
 
 var app = builder.Build();
 
@@ -30,6 +39,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+app.UseMyMiddleware();
 app.UseRouting();
 
 app.UseAuthorization();

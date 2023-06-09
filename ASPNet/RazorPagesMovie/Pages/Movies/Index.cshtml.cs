@@ -1,3 +1,4 @@
+using DependencyInjectionSample.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -10,9 +11,12 @@ namespace RazorPagesMovie.Pages_Movies
     public class IndexModel : PageModel
     {
         private readonly RazorPagesMovieContext _context;
+        private IEnumerable<IMyDependency> _myDependencys;
 
-        public IndexModel(RazorPagesMovieContext context)
+        public IndexModel(RazorPagesMovieContext context, IEnumerable<IMyDependency> myDependencys)
         {
+            _myDependencys = myDependencys;
+
             _context = context;
         }
 
@@ -45,6 +49,11 @@ namespace RazorPagesMovie.Pages_Movies
                 movies = movies.Where(m => m.Genre == MovieGenre);
             }
 
+            foreach (var myDependency in _myDependencys)
+            {
+                myDependency.WriteMessage($">>>> you accessed Index page");
+            }
+            
             Genres = new SelectList(await genres.Distinct().ToListAsync());
             Movie = await movies.ToListAsync();
         }
